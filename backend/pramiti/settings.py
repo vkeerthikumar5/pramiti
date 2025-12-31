@@ -26,8 +26,13 @@ SECRET_KEY = 'django-insecure-j0bflp07^9pu957)ua_t)5rhkbdi=+qju(6mk8md__-a5_le*z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "pramiti.vercel.app",       # frontend domain
+    "pramiti.onrender.com/"  # replace with your Render backend URL
+]
 
+
+CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
 
@@ -46,6 +51,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -53,12 +59,15 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
+    
 ]
 
 ROOT_URLCONF = 'pramiti.urls'
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    "https://pramiti.vercel.app",
+]
+
 
 AUTH_USER_MODEL = 'accounts.User'
 
