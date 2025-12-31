@@ -37,6 +37,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'corsheaders',
+    'accounts',
+    'groups',
+    'pramiti_ai'
 ]
 
 MIDDLEWARE = [
@@ -47,9 +52,14 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'pramiti.urls'
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+AUTH_USER_MODEL = 'accounts.User'
 
 TEMPLATES = [
     {
@@ -120,3 +130,27 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+from datetime import timedelta
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "accounts.authentication.UserOrgJWTAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.AllowAny"
+    ],
+}
+
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+}
+
+# settings.py
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"   # BASE_DIR is usually where manage.py lives
+import os
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
