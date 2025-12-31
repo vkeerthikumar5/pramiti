@@ -27,8 +27,7 @@ SECRET_KEY = 'django-insecure-j0bflp07^9pu957)ua_t)5rhkbdi=+qju(6mk8md__-a5_le*z
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "pramiti.vercel.app",       # frontend domain
-    "pramiti.onrender.com/"  # replace with your Render backend URL
+    "*"
 ]
 
 
