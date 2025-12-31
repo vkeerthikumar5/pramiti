@@ -163,13 +163,13 @@ export default function Members() {
                                                         : "bg-indigo-50 text-indigo-700"
                                                     }`}
                                             >
-                                                {g.name}
+                                                {g.name|| "NA"}
                                             </span>
                                         ))}
                                     </div>
                                 </td>
 
-                                <td className="px-4 py-3">{m.role}</td>
+                                <td className="px-4 py-3">{m.role||"NA"}</td>
 
                                 <td className="px-4 py-3">
                                     <span className={`px-2 py-1 rounded-full text-xs 

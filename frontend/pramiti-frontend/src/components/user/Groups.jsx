@@ -52,14 +52,7 @@ export default function Groups({ onSelectGroup }) {
           placeholder="Search groups..."
           className="p-2 border rounded w-full sm:w-1/3"
         />
-        <div className="flex gap-2">
-          <button className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
-            Unread
-          </button>
-          <button className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">
-            Recently Updated
-          </button>
-        </div>
+       
       </div>
 
       
