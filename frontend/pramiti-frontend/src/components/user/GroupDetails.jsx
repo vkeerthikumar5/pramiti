@@ -14,12 +14,13 @@ export default function GroupDetails({ group, goBack }) {
   const [members, setMembers] = useState([]);
 
   const [documents, setDocuments] = useState([]);
-
+  const [loading,setloading]=useState(false)
   useEffect(() => {
     if (!group?.id) return;
-  
+    setloading(true)
     const fetchDocuments = async () => {
       try {
+        
         const res = await api.get(`/groups/${group.id}/documents/`);
         const normalizedDocs = res.data.map(doc => ({
           id: doc.id,
@@ -28,6 +29,7 @@ export default function GroupDetails({ group, goBack }) {
           file_url: doc.file_url,
         }));
         setDocuments(normalizedDocs);
+        setloading(false)
       } catch (error) {
         console.error("Failed to fetch documents", error);
       }

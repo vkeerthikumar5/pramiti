@@ -7,11 +7,13 @@ export default function Groups({ onSelectGroup }) {
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [joinOpen, setJoinOpen] = useState(false);
   const [groupCode, setGroupCode] = useState("");
-
-  useEffect(() => {
+  const [loading,setloading]=useState(false)
+  useEffect(() => { 
+    setloading(true)
     api.get("user/groups/")
       .then((res) => setGroups(res.data))
-      .catch((err) => console.error(err));
+      .catch((err) => console.error(err))
+      .finally(() => setloading(false)); 
   }, []);
 
   const handleJoinGroup = () => {

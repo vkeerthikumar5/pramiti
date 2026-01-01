@@ -9,7 +9,7 @@ export default function Members() {
     const [filterGroup, setFilterGroup] = useState("All");
     const [filterRole, setFilterRole] = useState("All");
     const [selected, setSelected] = useState(null);
-
+    const [loading,setLoading]=useState(false)
     useEffect(() => {
         setLoading(true);
         api.get("/organization/members/")

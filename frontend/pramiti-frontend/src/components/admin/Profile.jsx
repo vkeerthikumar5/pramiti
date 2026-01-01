@@ -37,7 +37,7 @@ export default function Profile() {
         orgSize: data.organization_size,
         registrationId: data.registration_id,
       });
-      setloading(true)
+      setloading(false)
     } catch (err) {
       console.error("Failed to load profile", err);
     }
