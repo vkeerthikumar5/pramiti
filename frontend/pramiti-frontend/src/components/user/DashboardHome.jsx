@@ -46,7 +46,7 @@ if (!dashboard) {
 const myGroups = dashboard.group_names; // or full group objects if you send them
 const continueReading = dashboard.not_completed_docs;
 
-console.log(myGroups)
+
 const stats = [
 { label: "Groups Joined", value: dashboard.groups_joined_count, icon: HiUserGroup },
 { label: "Documents Read", value: dashboard.documents_completed_count, icon: HiBookOpen },

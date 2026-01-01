@@ -20,7 +20,7 @@ export function Login() {
       });
 
       const { role, is_active, access, refresh } = response.data;
-      console.log(role)
+      
 
       // ✅ USER VERIFICATION CHECK
       if (role === "user" && !is_active) {
