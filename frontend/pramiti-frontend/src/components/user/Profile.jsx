@@ -22,6 +22,7 @@ export default function Profile() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
+        setLoading(true);
         const { data } = await api.get("/user/profile/"); // your API endpoint
         setUserData({
           fullName: data.full_name || "",
@@ -40,7 +41,7 @@ export default function Profile() {
         
       } catch (err) {
         console.error(err);
-        setLoading(false);
+        
       }
     };
     fetchUser();
