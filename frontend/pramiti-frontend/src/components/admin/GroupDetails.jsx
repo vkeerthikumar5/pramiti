@@ -76,11 +76,13 @@ export default function GroupDetails({ group, onBack, onSelectDocument }) {
             avatar: `https://i.pravatar.cc/48?u=${m.user.email}`,
           }))
         );
+
+        
       } catch (err) {
         console.error("Failed to fetch members", err);
       }
     };
-    
+    fetchGroupMembers()
   }, [group]);
 
   useEffect(() => {
