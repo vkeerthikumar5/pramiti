@@ -18,7 +18,7 @@ export default function Notifications({ setUnreadCount }) {
     } catch (err) {
       console.error(err);
     } finally {
-      setLoading(false); // ✅ ensures spinner stops even on error
+      setloading(false); // ✅ ensures spinner stops even on error
     }
   };
   
