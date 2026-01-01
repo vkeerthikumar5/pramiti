@@ -7,6 +7,4 @@ urlpatterns = [
     path('documents/<int:doc_id>/note/', views.DocumentNoteView.as_view(), name='document-note'),
     path("documents/<int:document_id>/qa/", views.DocumentAIQuestionsView.as_view(), name="document-qa"),
     path("documents/<int:document_id>/topics/", views.DocumentTopicsView.as_view(), name="document-topics"),
-
-
 ]
