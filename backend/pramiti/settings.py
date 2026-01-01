@@ -65,6 +65,7 @@ ROOT_URLCONF = 'pramiti.urls'
 
 CORS_ALLOWED_ORIGINS = [
     "https://pramiti.vercel.app",
+    "http://localhost:5173"
 ]
 
 
