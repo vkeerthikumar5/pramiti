@@ -405,7 +405,7 @@ class AdminDashboardView(APIView):
 
     def get(self, request):
         org = request.user
-        total_active_employees = User.objects.filter(organization=org.organization, status="active").count()
+        total_active_employees = User.objects.filter(organization=org.organization_name, status="active").count()
         total_groups = Group.objects.filter(organization=org).count()
         total_documents = Document.objects.filter(group__organization=org).count()
         total_questions = AIQuestion.objects.filter(group__organization=org).count()
