@@ -7,19 +7,21 @@ export default function Notifications({ setUnreadCount }) {
   const[loading,setloading]=useState(false)
   useEffect(() => {
     fetchNotifications();
-  });
+  },[]);
 
   const fetchNotifications = async () => {
+    setloading(true);
     try {
-        setloading(true)
       const { data } = await api.get("/notifications/user/");
       setNotifications(data.notifications);
-      setUnreadCount(data.unread_count); // update parent unread count
-      setloading(false)
+      setUnreadCount(data.unread_count);
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false); // ✅ ensures spinner stops even on error
     }
   };
+  
 
   const markAsRead = async (notifId, index) => {
     try {
