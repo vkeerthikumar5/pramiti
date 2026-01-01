@@ -124,27 +124,26 @@ export default function GroupDetails({ group, onBack, onSelectDocument }) {
 const updateStatus = async (userId, newStatus) => {
   if (!groupData?.id) return;
 
+  const statusMap = {
+    Active: "active",
+    Pending: "pending",
+    Suspended: "suspended",
+  };
+
   try {
-    const res = await api.patch(
+    await api.patch(
       `/groups/${groupData.id}/members/${userId}/status/`,
-      { status: newStatus }
+      { status: statusMap[newStatus] }
     );
 
-    // Update the members state locally
-    setMembers((prev) =>
-      prev.map((m) =>
-        m.id === userId
-          ? { ...m, status: res.data.status === "active" ? "Active" : res.data.status === "pending" ? "Pending" : "Suspended" }
-          : m
-      )
-    );
-
-    alert(`Member status updated to ${res.data.status}`);
+    // ✅ REFRESH FROM DB
+    fetchGroupMembers();
   } catch (err) {
     console.error(err);
     alert("Failed to update member status");
   }
 };
+
 
   const editGroup = async (data) => {
     try {
