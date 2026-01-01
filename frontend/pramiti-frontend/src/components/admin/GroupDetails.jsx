@@ -88,7 +88,6 @@ export default function GroupDetails({ group, onBack, onSelectDocument }) {
     if (!group?.id) return;
     const fetchDocuments = async () => {
       try {
-        setloading(true)
         const res = await api.get(`/groups/${group.id}/documents/`);
         setDocuments(
           res.data.map((doc) => ({
@@ -106,9 +105,7 @@ export default function GroupDetails({ group, onBack, onSelectDocument }) {
             completed_count: doc.completed_count ?? 0,
            
           }))
-          
         );
-        setloading(false)
       } catch (error) {
         console.error("Failed to fetch documents", error);
       }
@@ -116,18 +113,7 @@ export default function GroupDetails({ group, onBack, onSelectDocument }) {
     fetchDocuments();
   });
 
-  if (loading) {
-    return (
-      <div className="h-screen flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
-          <p className="text-sm text-indigo-600 font-medium">
-            Loading...
-          </p>
-        </div>
-      </div>
-    );
-  }
+  if (!groupData) return <div className="p-6 text-gray-500">Loading group details...</div>;
 
   const statusBadge = (status) => {
     const styles = {
