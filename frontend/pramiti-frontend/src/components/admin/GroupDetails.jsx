@@ -36,7 +36,7 @@ export default function GroupDetails({ group, onBack, onSelectDocument }) {
   const [manageOpen, setManageOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [editData, setEditData] = useState({ name: "", description: "" });
-
+  const [loading,setloading]=useState(false)
   const filteredDocs = useMemo(() => documents, [documents]);
 
   useEffect(() => {
@@ -111,9 +111,20 @@ export default function GroupDetails({ group, onBack, onSelectDocument }) {
       }
     };
     fetchDocuments();
-  }, [group]);
+  });
 
-  if (!groupData) return <div className="p-6 text-gray-500">Loading group details...</div>;
+  if (!groupData) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+          <p className="text-sm text-indigo-600 font-medium">
+            Loading...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const statusBadge = (status) => {
     const styles = {

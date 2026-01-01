@@ -16,13 +16,14 @@ export default function Profile() {
 
   const [editMode, setEditMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-
+  const[loading,setloading]=useState(false)
   useEffect(() => {
     fetchProfile();
   }, []);
 
   const fetchProfile = async () => {
     try {
+      setloading(true)
       const res = await api.get("/org/profile/");
       const data = res.data;
 
@@ -36,6 +37,7 @@ export default function Profile() {
         orgSize: data.organization_size,
         registrationId: data.registration_id,
       });
+      setloading(true)
     } catch (err) {
       console.error("Failed to load profile", err);
     }
@@ -81,7 +83,18 @@ export default function Profile() {
     { label: "Organization Size", name: "orgSize", icon: <FiHash /> },
     { label: "Registration ID", name: "registrationId", icon: <FiHash /> },
   ];
-
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+          <p className="text-sm text-indigo-600 font-medium">
+            Loading...
+          </p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       {/* Header */}

@@ -11,6 +11,7 @@ export default function Members() {
     const [selected, setSelected] = useState(null);
 
     useEffect(() => {
+        setLoading(true);
         api.get("/organization/members/")
             .then((res) => {
                 const normalized = res.data.map(m => ({
@@ -23,8 +24,10 @@ export default function Members() {
                 }));
                 setMembers(normalized);
             })
-            .catch(console.error);
+            .catch(console.error)
+            .finally(() => setLoading(false));
     }, []);
+    
 
     const [page, setPage] = useState(1);
     const perPage = 8;
@@ -81,18 +84,19 @@ export default function Members() {
             alert("Failed to remove member");
         }
     };
-    if (!members) {
+    if (loading) {
         return (
           <div className="h-screen flex items-center justify-center">
             <div className="flex flex-col items-center gap-4">
               <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
               <p className="text-sm text-indigo-600 font-medium">
-                Loading...
+                Loading members...
               </p>
             </div>
           </div>
         );
-      }
+    }
+    
     return (
         <div className="p-4 sm:p-6 space-y-6">
             {/* Header */}

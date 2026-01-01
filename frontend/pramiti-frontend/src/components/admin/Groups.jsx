@@ -7,13 +7,18 @@ export default function Groups({ onSelectGroup }) {
   const [createOpen, setCreateOpen] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
   const [newGroupDesc, setNewGroupDesc] = useState("");
-
+  
+  const [loading, setLoading] = useState(true); // start as true
+  
   // Fetch groups from backend
   useEffect(() => {
+    setLoading(true); // start loading
     api.get("/groups/")
       .then((res) => setGroups(res.data))
-      .catch((err) => console.error(err));
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false)); // stop loading
   }, []);
+  
 
   // Separate groups into admin and member
   
@@ -91,7 +96,18 @@ export default function Groups({ onSelectGroup }) {
     </div>
   );
   
-
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+          <p className="text-sm text-indigo-600 font-medium">
+            Loading...
+          </p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="p-6">
       {/* Header */}
