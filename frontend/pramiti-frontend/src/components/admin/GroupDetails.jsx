@@ -52,38 +52,37 @@ export default function GroupDetails({ group, onBack, onSelectDocument }) {
     fetchGroupDetails();
   }, [group]);
 
+  const fetchGroupMembers = async () => {
+    if (!group?.id) return;
+  
+    try {
+      const res = await api.get(`/groups/${group.id}/members/`);
+      setMembers(
+        res.data.map((m) => ({
+          id: m.user.id,
+          name: m.user.full_name,
+          email: m.user.email,
+          role: m.role === "admin" ? "Admin" : "Member",
+          status:
+            m.status === "active"
+              ? "Active"
+              : m.status === "pending"
+              ? "Pending"
+              : "Suspended",
+          lastActive: m.last_active
+            ? new Date(m.last_active).toLocaleString()
+            : "—",
+          avatar: `https://i.pravatar.cc/48?u=${m.user.email}`,
+        }))
+      );
+    } catch (err) {
+      console.error("Failed to fetch members", err);
+    }
+  };
   useEffect(() => {
-    const fetchGroupMembers = async () => {
-      if (!group?.id) return;
-    
-      try {
-        const res = await api.get(`/groups/${group.id}/members/`);
-        setMembers(
-          res.data.map((m) => ({
-            id: m.user.id,
-            name: m.user.full_name,
-            email: m.user.email,
-            role: m.role === "admin" ? "Admin" : "Member",
-            status:
-              m.status === "active"
-                ? "Active"
-                : m.status === "pending"
-                ? "Pending"
-                : "Suspended",
-            lastActive: m.last_active
-              ? new Date(m.last_active).toLocaleString()
-              : "—",
-            avatar: `https://i.pravatar.cc/48?u=${m.user.email}`,
-          }))
-        );
-
-        
-      } catch (err) {
-        console.error("Failed to fetch members", err);
-      }
-    };
-    fetchGroupMembers()
+    fetchGroupMembers();
   }, [group]);
+    
 
   useEffect(() => {
     if (!group?.id) return;
@@ -130,28 +129,29 @@ export default function GroupDetails({ group, onBack, onSelectDocument }) {
   };
   // Add this function inside your GroupDetails component
 
-const updateStatus = async (userId, newStatus) => {
-  if (!groupData?.id) return;
-
-  const statusMap = {
-    Active: "active",
-    Pending: "pending",
-    Suspended: "suspended",
+  const updateStatus = async (userId, newStatus) => {
+    if (!groupData?.id) return;
+  
+    const statusMap = {
+      Active: "active",
+      Pending: "pending",
+      Suspended: "suspended",
+    };
+  
+    try {
+      await api.patch(
+        `/groups/${groupData.id}/members/${userId}/status/`,
+        { status: statusMap[newStatus] }
+      );
+  
+      // ✅ refetch from DB
+      fetchGroupMembers();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update member status");
+    }
   };
-
-  try {
-    await api.patch(
-      `/groups/${groupData.id}/members/${userId}/status/`,
-      { status: statusMap[newStatus] }
-    );
-
-    // ✅ REFRESH FROM DB
-    fetchGroupMembers();
-  } catch (err) {
-    console.error(err);
-    alert("Failed to update member status");
-  }
-};
+  
 
 
   const editGroup = async (data) => {
