@@ -116,7 +116,7 @@ export default function GroupDetails({ group, onBack, onSelectDocument }) {
     };
   
     fetchDocuments();
-  }); 
+  },[]); 
   
 
   if (!groupData) return <div className="p-6 text-gray-500">Loading group details...</div>;
