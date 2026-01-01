@@ -86,9 +86,10 @@ export default function GroupDetails({ group, onBack, onSelectDocument }) {
 
   useEffect(() => {
     if (!group?.id) return;
+  
     const fetchDocuments = async () => {
       try {
-        setloading(true)
+        setloading(true);
         const res = await api.get(`/groups/${group.id}/documents/`);
         setDocuments(
           res.data.map((doc) => ({
@@ -101,19 +102,22 @@ export default function GroupDetails({ group, onBack, onSelectDocument }) {
             fileSize: doc.file_size || "",
             views: doc.views || 0,
             readers: doc.readers || 0,
-            unansweredQuestions: doc.not_completed_count||0,
+            unansweredQuestions: doc.not_completed_count || 0,
             completionPercent: doc.completion_percent || 0,
             completed_count: doc.completed_count ?? 0,
-           
           }))
         );
-        setloading(false)
       } catch (error) {
         console.error("Failed to fetch documents", error);
+        alert("Failed to fetch documents");
+      } finally {
+        setloading(false); // ✅ stop spinner in all cases
       }
     };
+  
     fetchDocuments();
-  });
+  }, [group?.id]); // <-- dependency array added
+  
 
   if (!groupData) return <div className="p-6 text-gray-500">Loading group details...</div>;
 
