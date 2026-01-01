@@ -37,5 +37,5 @@ urlpatterns = [
     path("notifications/read/<int:notif_id>/", views.MarkNotificationReadAPI.as_view(), name="mark_notification_read"),
 
     # Admin
-    path("admin/dashboard/", views.AdminDashboardView.as_view(), name="admin-dashboard")
+    path("admin/dashboard/", views.AdminDashboardView.as_view(), name="admin-dashboard"),
 ]
