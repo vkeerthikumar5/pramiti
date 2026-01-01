@@ -39,17 +39,20 @@ class GroupListCreate(generics.ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
+        # Check if user is an Organization
         if isinstance(user, Organization):
+            # Only groups belonging to this organization
             return Group.objects.filter(organization=user).order_by("-id")
-        return Group.objects.filter(
-            memberships__user=user
-        ).distinct().order_by("-id")
+        # For normal users, show only groups they are members of
+        return Group.objects.filter(memberships__user=user).distinct().order_by("-id")
 
     def perform_create(self, serializer):
         user = self.request.user
+        # If Organization is creating, set organization
+        org = user if isinstance(user, Organization) else None
         serializer.save(
-            organization=user,
-            created_by=None
+            organization=org,
+            created_by=user if not isinstance(user, Organization) else None
         )
 
 # ---------------------------------------
@@ -402,7 +405,7 @@ class AdminDashboardView(APIView):
 
     def get(self, request):
         org = request.user
-        total_active_employees = User.objects.filter(organization=org.organization_name, status="active").count()
+        total_active_employees = User.objects.filter(organization=org.organization, status="active").count()
         total_groups = Group.objects.filter(organization=org).count()
         total_documents = Document.objects.filter(group__organization=org).count()
         total_questions = AIQuestion.objects.filter(group__organization=org).count()
