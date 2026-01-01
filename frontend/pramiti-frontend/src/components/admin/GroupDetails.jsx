@@ -53,27 +53,34 @@ export default function GroupDetails({ group, onBack, onSelectDocument }) {
   }, [group]);
 
   useEffect(() => {
-    if (!group?.id) return;
-    api.get(`/groups/${group.id}/members/`).then((res) => {
-      setMembers(
-        res.data.map((m) => ({
-          id: m.user.id,
-          name: m.user.full_name,
-          email: m.user.email,
-          role: m.role === "admin" ? "Admin" : "Member",
-          status:
-            m.status === "active"
-              ? "Active"
-              : m.status === "pending"
-              ? "Pending"
-              : "Suspended",
-          lastActive: m.last_active
-            ? new Date(m.last_active).toLocaleString()
-            : "—",
-          avatar: `https://i.pravatar.cc/48?u=${m.user.email}`,
-        }))
-      );
-    });
+    const fetchGroupMembers = async () => {
+      if (!group?.id) return;
+    
+      try {
+        const res = await api.get(`/groups/${group.id}/members/`);
+        setMembers(
+          res.data.map((m) => ({
+            id: m.user.id,
+            name: m.user.full_name,
+            email: m.user.email,
+            role: m.role === "admin" ? "Admin" : "Member",
+            status:
+              m.status === "active"
+                ? "Active"
+                : m.status === "pending"
+                ? "Pending"
+                : "Suspended",
+            lastActive: m.last_active
+              ? new Date(m.last_active).toLocaleString()
+              : "—",
+            avatar: `https://i.pravatar.cc/48?u=${m.user.email}`,
+          }))
+        );
+      } catch (err) {
+        console.error("Failed to fetch members", err);
+      }
+    };
+    
   }, [group]);
 
   useEffect(() => {
