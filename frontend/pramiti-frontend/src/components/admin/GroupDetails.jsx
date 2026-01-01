@@ -356,10 +356,25 @@ export default function GroupDetails({ group, onBack, onSelectDocument }) {
         onChange={(e) => setUploadSummary(e.target.value)}
       />
       <input
-        type="file"
-        className="w-full mb-3"
-        onChange={(e) => setUploadFile(e.target.files[0])}
-      />
+  type="file"
+  accept="application/pdf"
+  className="w-full mb-3"
+  onChange={(e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    // Extra safety check
+    if (file.type !== "application/pdf") {
+      alert("Only PDF files are allowed");
+      e.target.value = null; // reset input
+      return;
+    }
+
+    setUploadFile(file);
+  }}
+/>
+
       <div className="flex justify-end gap-2 flex-wrap">
         <button
           className="px-4 py-2 bg-gray-100 rounded"

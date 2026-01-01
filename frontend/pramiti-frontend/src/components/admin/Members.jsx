@@ -120,7 +120,7 @@ export default function Members() {
                         <tr>
                             <th className="px-4 py-3 text-left">Member</th>
                             <th className="px-4 py-3 text-left">Groups</th>
-                            <th className="px-4 py-3 text-left">Role</th>
+                           
                             <th className="px-4 py-3 text-left">Status</th>
                             <th className="px-4 py-3 text-left">Actions</th>
                         </tr>
@@ -169,7 +169,7 @@ export default function Members() {
                                     </div>
                                 </td>
 
-                                <td className="px-4 py-3">{m.role||"NA"}</td>
+                                
 
                                 <td className="px-4 py-3">
                                     <span className={`px-2 py-1 rounded-full text-xs 

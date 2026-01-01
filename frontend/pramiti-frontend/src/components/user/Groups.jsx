@@ -45,16 +45,7 @@ export default function Groups({ onSelectGroup }) {
         </button>
       </div>
 
-      {/* Search + Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 items-center">
-        <input
-          type="text"
-          placeholder="Search groups..."
-          className="p-2 border rounded w-full sm:w-1/3"
-        />
-       
-      </div>
-
+      
       
       {/* Groups Grid */}
      {/* Groups Grid */}
@@ -84,25 +75,37 @@ export default function Groups({ onSelectGroup }) {
         </div>
 
         {/* Button Logic */}
-        {isArchived ? (
-          <button
-            className="mt-4 w-full py-2  bg-indigo-900  text-white rounded cursor-not-allowed"
-            disabled
-          >
-            Group Archived
-          </button>
-        ) : status === "pending" ? (
-          <button className="mt-4 w-full py-2  bg-indigo-900  text-white rounded cursor-not-allowed">
-            Pending activation
-          </button>
-        ) : (
-          <button
-            onClick={() => setSelectedGroup(g)}
-            className="mt-4 w-full py-2 border border-white text-white rounded hover:bg-white hover:text-gray-800 transition"
-          >
-            Open Group
-          </button>
-        )}
+       {/* Button Logic */}
+{isArchived ? (
+  <button
+    className="mt-4 w-full py-2 bg-indigo-900 text-white rounded cursor-not-allowed"
+    disabled
+  >
+    Group Archived
+  </button>
+) : status === "pending" ? (
+  <button
+    className="mt-4 w-full py-2 bg-indigo-900 text-white rounded cursor-not-allowed"
+    disabled
+  >
+    Pending activation
+  </button>
+) : status === "suspended" ? (
+  <button
+    className="mt-4 w-full py-2 bg-red-600 text-white rounded cursor-not-allowed"
+    disabled
+  >
+    You&apos;re Suspended
+  </button>
+) : (
+  <button
+    onClick={() => setSelectedGroup(g)}
+    className="mt-4 w-full py-2 border border-white text-white rounded hover:bg-white hover:text-gray-800 transition"
+  >
+    Open Group
+  </button>
+)}
+
       </div>
     );
   })}
