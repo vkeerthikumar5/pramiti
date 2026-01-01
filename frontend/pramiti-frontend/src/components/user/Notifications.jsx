@@ -4,16 +4,18 @@ import api from "../../api";
 
 export default function Notifications({ setUnreadCount }) {
   const [notifications, setNotifications] = useState([]);
-
+  const[loading,setloading]=useState(false)
   useEffect(() => {
     fetchNotifications();
   });
 
   const fetchNotifications = async () => {
     try {
+        setloading(true)
       const { data } = await api.get("/notifications/user/");
       setNotifications(data.notifications);
       setUnreadCount(data.unread_count); // update parent unread count
+      setloading(false)
     } catch (err) {
       console.error(err);
     }

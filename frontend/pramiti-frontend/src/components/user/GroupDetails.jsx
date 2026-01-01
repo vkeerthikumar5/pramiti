@@ -71,7 +71,18 @@ export default function GroupDetails({ group, goBack }) {
     { id: "members", label: "Members", icon: <FiUsers /> },
     
   ];
-
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
+          <p className="text-sm text-indigo-600 font-medium">
+            Loading dashboard...
+          </p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="p-6 space-y-6">
       {/* Back */}
