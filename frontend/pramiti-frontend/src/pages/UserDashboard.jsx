@@ -34,7 +34,13 @@ export default function UserDashboard() {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} unreadCount={unreadCount}/>
+      <Sidebar 
+  activeTab={activeTab} 
+  setActiveTab={setActiveTab} 
+  unreadCount={unreadCount} 
+  setUnreadCount={setUnreadCount} 
+/>
+
 
       <div className="flex-1 flex flex-col ml-0 sm:ml-64 transition-all">
         <header className="bg-indigo-700 text-white p-4 shadow-md md:hidden">

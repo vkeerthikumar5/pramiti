@@ -3,7 +3,8 @@ import { FaUserMd, FaClipboardList, FaChartLine, FaCog, FaSignOutAlt, FaBars, Fa
 import { useNavigate } from "react-router-dom";
 import api from "../../api";
 
-export default function Sidebar({ activeTab, setActiveTab,unreadCount }) {
+export default function Sidebar({ activeTab, setActiveTab, unreadCount, setUnreadCount }) {
+
   const [isOpen, setIsOpen] = useState(false);
   
 
