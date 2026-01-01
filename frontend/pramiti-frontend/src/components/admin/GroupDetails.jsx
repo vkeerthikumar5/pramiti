@@ -88,6 +88,7 @@ export default function GroupDetails({ group, onBack, onSelectDocument }) {
     if (!group?.id) return;
     const fetchDocuments = async () => {
       try {
+        setloading(true)
         const res = await api.get(`/groups/${group.id}/documents/`);
         setDocuments(
           res.data.map((doc) => ({
@@ -105,7 +106,9 @@ export default function GroupDetails({ group, onBack, onSelectDocument }) {
             completed_count: doc.completed_count ?? 0,
            
           }))
+          
         );
+        setloading(false)
       } catch (error) {
         console.error("Failed to fetch documents", error);
       }
@@ -113,7 +116,7 @@ export default function GroupDetails({ group, onBack, onSelectDocument }) {
     fetchDocuments();
   });
 
-  if (!groupData) {
+  if (loading) {
     return (
       <div className="h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
