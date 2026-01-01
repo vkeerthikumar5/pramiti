@@ -54,28 +54,22 @@ export default function Profile() {
 
   const handleSave = async () => {
     try {
-      const formData = new FormData();
-  
-      // Map frontend keys to backend keys
-      const keyMap = {
-        fullName: "full_name",
-        dob: "dob",
-        gender: "gender",
-        organization: "organization",
-        department: "department",
-        employeeId: "employee_id",
-        designation: "designation",
-        email: "email",
-        phone_number: "phone_number",
-        address: "address",
-        profilePhoto: "profile_photo",
+      // Prepare payload
+      const payload = {
+        full_name: userData.fullName,
+        dob: userData.dob,
+        gender: userData.gender,
+        organization: userData.organization,
+        department: userData.department,
+        employee_id: userData.employeeId,
+        designation: userData.designation,
+        email: userData.email,
+        phone_number: userData.phone_number,
+        address: userData.address,
       };
   
-     
-  
-      await api.put("/user/profile/update/", formData, {
-        
-      });
+      // Send PUT request
+      await api.put("/user/profile/update/", payload);
   
       alert("Profile updated successfully!");
     } catch (err) {
@@ -83,6 +77,8 @@ export default function Profile() {
       alert("Failed to update profile");
     }
   };
+  
+  
   
 
   if (loading) {
