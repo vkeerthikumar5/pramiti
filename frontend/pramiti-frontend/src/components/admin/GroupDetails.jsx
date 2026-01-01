@@ -88,6 +88,7 @@ export default function GroupDetails({ group, onBack, onSelectDocument }) {
     if (!group?.id) return;
     const fetchDocuments = async () => {
       try {
+        setloading(true)
         const res = await api.get(`/groups/${group.id}/documents/`);
         setDocuments(
           res.data.map((doc) => ({
@@ -106,6 +107,7 @@ export default function GroupDetails({ group, onBack, onSelectDocument }) {
            
           }))
         );
+        setloading(false)
       } catch (error) {
         console.error("Failed to fetch documents", error);
       }
@@ -425,94 +427,108 @@ export default function GroupDetails({ group, onBack, onSelectDocument }) {
       <div className="space-y-6">
         {/* Documents Tab */}
         {activeTab === "documents" && (
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className="flex-1">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2 flex-wrap">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Documents</h3>
-                  <p className="text-sm text-gray-500">Uploaded documents for this group. Click View Insights to see document analytics.</p>
-                </div>
-                <div className="text-sm text-gray-600 whitespace-nowrap">Showing {filteredDocs.length} documents</div>
-              </div>
-
-              <div className="space-y-4">
-  {filteredDocs.length > 0 ? (
-    filteredDocs.map((doc) => (
-      <div key={doc.id} className="bg-white w-full p-4 rounded-2xl shadow hover:shadow-lg transition">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="flex gap-4 items-center flex-1 min-w-0">
-            <div className="w-12 h-12 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center font-semibold text-sm shrink-0">
-              {doc.title.split(" ").slice(0, 2).map(s => s[0]).join("")}
-            </div>
-            <div className="min-w-0">
-              <div className="text-md font-semibold text-gray-900 truncate">{doc.title}</div>
-              <div className="text-sm text-gray-500 truncate">{doc.summary}</div>
-              <div className="text-xs text-gray-400 mt-2 truncate">
-                Uploaded by {doc.uploadedBy} <br /> on {doc.uploadedOn}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col items-start md:items-end gap-2 mt-2 md:mt-0 flex-shrink-0">
-            <div className="text-sm text-gray-600">{doc.fileSize}</div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => onSelectDocument(doc)}
-                className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700"
-              >
-                <FiEye /> View Insights
-              </button>
-
-              <button
-                onClick={() => deleteDocument(doc.id)}
-                className="inline-flex items-center gap-2 px-3 py-1 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700"
-              >
-                <FiTrash2 /> Delete
-              </button>
-            </div>
-          </div>
+  <div className="flex flex-col md:flex-row gap-6">
+    <div className="flex-1">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2 flex-wrap">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900">Documents</h3>
+          <p className="text-sm text-gray-500">
+            Uploaded documents for this group. Click View Insights to see document analytics.
+          </p>
         </div>
-
-        <div className="mt-2 flex flex-wrap gap-2 text-xs">
-          <span className="px-2 py-1 rounded-full bg-green-50 text-green-700">{doc.completionPercent}% read</span>
-          <span className="px-2 py-1 rounded-full bg-indigo-50 text-indigo-700">{doc.readers} In Progress</span>
-          <span className="px-2 py-1 rounded-full bg-indigo-50 text-indigo-700">{doc.completed_count} Completed</span>
-          <span className="px-2 py-1 rounded-full bg-yellow-50 text-yellow-700">{doc.unansweredQuestions} Uncompleted</span>
+        <div className="text-sm text-gray-600 whitespace-nowrap">
+          Showing {filteredDocs.length} documents
         </div>
       </div>
-    ))
-  ) : (
-    <div className="flex flex-col items-center justify-center py-24 text-center text-gray-400">
-      <FiFileText className="text-6xl mb-4 opacity-50" />
-      <p className="text-lg font-medium">No documents uploaded yet</p>
-      <p className="text-sm mt-1 max-w-md">
-        Upload a document to start tracking reading progress and AI insights.
-      </p>
-    </div>
-  )}
-</div>
 
-            </div>
+      <div className="space-y-4">
+        {loading ? (
+          // Spinner inside the documents container
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4" />
+            <p className="text-sm text-indigo-600 font-medium">Loading documents...</p>
+          </div>
+        ) : filteredDocs.length > 0 ? (
+          filteredDocs.map((doc) => (
+            <div
+              key={doc.id}
+              className="bg-white w-full p-4 rounded-2xl shadow hover:shadow-lg transition"
+            >
+              {/* Document content */}
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div className="flex gap-4 items-center flex-1 min-w-0">
+                  <div className="w-12 h-12 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center font-semibold text-sm shrink-0">
+                    {doc.title.split(" ").slice(0, 2).map(s => s[0]).join("")}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-md font-semibold text-gray-900 truncate">{doc.title}</div>
+                    <div className="text-sm text-gray-500 truncate">{doc.summary}</div>
+                    <div className="text-xs text-gray-400 mt-2 truncate">
+                      Uploaded by {doc.uploadedBy} <br /> on {doc.uploadedOn}
+                    </div>
+                  </div>
+                </div>
 
-            <aside className="bg-white p-4 md:p-6 rounded-2xl shadow flex-shrink-0 w-full md:w-64">
-              <h4 className="font-semibold mb-3 text-gray-700">Quick Insights</h4>
-              <div className="grid grid-cols-1 gap-3">
-                <div className="p-3 bg-indigo-50 rounded-lg">
-                  <div className="text-xs text-gray-500">Total Documents</div>
-                  <div className="text-xl font-bold text-indigo-900">{groupData.documents_count}</div>
-                </div>
-                <div className="p-3 bg-green-50 rounded-lg">
-                  <div className="text-xs text-gray-500">Avg Completion</div>
-                  <div className="text-xl font-bold text-green-900">{Math.round(documents.reduce((s,d)=>s+d.completionPercent,0)/documents.length || 0)}%</div>
-                </div>
-                <div className="p-3 bg-yellow-50 rounded-lg">
-                  <div className="text-xs text-gray-500">Uncompleted Documents</div>
-                  <div className="text-xl font-bold text-yellow-900">{documents.reduce((s,d)=>s+d.unansweredQuestions,0)}</div>
+                <div className="flex flex-col items-start md:items-end gap-2 mt-2 md:mt-0 flex-shrink-0">
+                  <div className="text-sm text-gray-600">{doc.fileSize}</div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => onSelectDocument(doc)}
+                      className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700"
+                    >
+                      <FiEye /> View Insights
+                    </button>
+
+                    <button
+                      onClick={() => deleteDocument(doc.id)}
+                      className="inline-flex items-center gap-2 px-3 py-1 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700"
+                    >
+                      <FiTrash2 /> Delete
+                    </button>
+                  </div>
                 </div>
               </div>
-            </aside>
+
+              <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                <span className="px-2 py-1 rounded-full bg-green-50 text-green-700">{doc.completionPercent}% read</span>
+                <span className="px-2 py-1 rounded-full bg-indigo-50 text-indigo-700">{doc.readers} In Progress</span>
+                <span className="px-2 py-1 rounded-full bg-indigo-50 text-indigo-700">{doc.completed_count} Completed</span>
+                <span className="px-2 py-1 rounded-full bg-yellow-50 text-yellow-700">{doc.unansweredQuestions} Uncompleted</span>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="flex flex-col items-center justify-center py-24 text-center text-gray-400">
+            <FiFileText className="text-6xl mb-4 opacity-50" />
+            <p className="text-lg font-medium">No documents uploaded yet</p>
+            <p className="text-sm mt-1 max-w-md">
+              Upload a document to start tracking reading progress and AI insights.
+            </p>
           </div>
         )}
+      </div>
+    </div>
+
+    <aside className="bg-white p-4 md:p-6 rounded-2xl shadow flex-shrink-0 w-full md:w-64">
+      <h4 className="font-semibold mb-3 text-gray-700">Quick Insights</h4>
+      <div className="grid grid-cols-1 gap-3">
+        <div className="p-3 bg-indigo-50 rounded-lg">
+          <div className="text-xs text-gray-500">Total Documents</div>
+          <div className="text-xl font-bold text-indigo-900">{groupData.documents_count}</div>
+        </div>
+        <div className="p-3 bg-green-50 rounded-lg">
+          <div className="text-xs text-gray-500">Avg Completion</div>
+          <div className="text-xl font-bold text-green-900">{Math.round(documents.reduce((s,d)=>s+d.completionPercent,0)/documents.length || 0)}%</div>
+        </div>
+        <div className="p-3 bg-yellow-50 rounded-lg">
+          <div className="text-xs text-gray-500">Uncompleted Documents</div>
+          <div className="text-xl font-bold text-yellow-900">{documents.reduce((s,d)=>s+d.unansweredQuestions,0)}</div>
+        </div>
+      </div>
+    </aside>
+  </div>
+)}
+
 
         {/* Members Tab */}
         {activeTab === "members" && (
