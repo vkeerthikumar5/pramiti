@@ -9,5 +9,5 @@ urlpatterns = [
     path("user/profile/", views.UserProfileAPIView.as_view(), name="user-profile"),
     path("user/profile/update/", views.UserProfileUpdateAPIView.as_view(), name="user-profile-update"),
     path("user/dashboard/", views.UserDashboardAPIView.as_view(), name="user-dashboard"),
-    path("org/profile/", views.OrganizationProfileAPIView.as_view(), name="org-profile"),
+    path("org/profile/", views.OrganizationProfileAPIView.as_view(), name="org-profile")
 ]

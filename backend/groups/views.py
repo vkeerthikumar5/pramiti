@@ -400,12 +400,21 @@ class MarkNotificationReadAPI(APIView):
 # ---------------------------------------
 # Admin Dashboard
 # ---------------------------------------
+
 class AdminDashboardView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        org = request.user
-        total_active_employees = User.objects.filter(organization=org.organization_name, status="active").count()
+        user = request.user
+
+        # 1️⃣ Ensure only organization can access
+        if not isinstance(user, Organization):
+            return Response({"error": "Only organizations can access this dashboard"}, status=403)
+
+        org = user  # safe to use as organization
+
+        # 2️⃣ Use organization object directly for filters
+        total_active_employees = User.objects.filter(organization=org, status="active").count()
         total_groups = Group.objects.filter(organization=org).count()
         total_documents = Document.objects.filter(group__organization=org).count()
         total_questions = AIQuestion.objects.filter(group__organization=org).count()
@@ -414,7 +423,10 @@ class AdminDashboardView(APIView):
         questions_today = AIQuestion.objects.filter(group__organization=org, asked_at__date=today).count()
         last_7_days = [today - timedelta(days=i) for i in range(6, -1, -1)]
 
-        ai_qs = AIQuestion.objects.filter(group__organization=org, asked_at__date__gte=last_7_days[0]).values("asked_at__date").annotate(count=Count("id"))
+        ai_qs = AIQuestion.objects.filter(
+            group__organization=org, 
+            asked_at__date__gte=last_7_days[0]
+        ).values("asked_at__date").annotate(count=Count("id"))
         ai_usage_map = {q["asked_at__date"]: q["count"] for q in ai_qs}
         ai_usage_data = [{"date": day.strftime("%Y-%m-%d"), "count": ai_usage_map.get(day, 0)} for day in last_7_days]
 

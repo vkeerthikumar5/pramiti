@@ -53,6 +53,8 @@ class OrganizationListView(APIView):
 # ---------------------------
 # Login
 # ---------------------------
+from rest_framework_simplejwt.tokens import RefreshToken
+
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
@@ -66,9 +68,13 @@ class LoginView(APIView):
             if role == "user":
                 user = data["user_obj"]
                 refresh = RefreshToken.for_user(user)
+                # Add custom claim
+                refresh['user_type'] = 'user'
             else:  # organization
                 org = data["org_obj"]
                 refresh = RefreshToken.for_user(org)
+                # Add custom claim
+                refresh['user_type'] = 'organization'
 
             access = str(refresh.access_token)
             refresh_token = str(refresh)
@@ -81,7 +87,6 @@ class LoginView(APIView):
             }, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 # ---------------------------
 # User Profile
