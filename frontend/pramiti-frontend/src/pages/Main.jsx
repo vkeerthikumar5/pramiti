@@ -14,7 +14,7 @@ export default function Main() {
       <div
         className="hidden md:flex w-3/4 bg-gray-900 bg-blend-multiply bg-cover bg-center text-white items-center justify-center p-8"
         style={{
-          backgroundImage: `url('https://images.pexels.com/photos/3082452/pexels-photo-3082452.jpeg')`,
+          backgroundImage: `url('https://images.pexels.com/photos/7841415/pexels-photo-7841415.jpeg')`,
         }}
       >
         <div className="max-w-md text-center">

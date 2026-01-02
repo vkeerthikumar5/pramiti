@@ -10,6 +10,9 @@ export default function Members() {
     const [filterRole, setFilterRole] = useState("All");
     const [selected, setSelected] = useState(null);
     const [loading,setLoading]=useState(false)
+    
+const [loadingButtons, setLoadingButtons] = useState({});
+
     useEffect(() => {
         setLoading(true);
         api.get("/organization/members/")
@@ -61,29 +64,22 @@ export default function Members() {
     const openDetails = (member) => setSelected(member);
 
     const updateStatus = async (member, status) => {
-        try {
-            await api.patch(`/organization/members/${member.id}/status/`, { status });
-            setMembers(prev =>
-                prev.map(m =>
-                    m.id === member.id
-                        ? { ...m, status: status.charAt(0).toUpperCase() + status.slice(1) }
-                        : m
-                )
-            );
-        } catch (err) {
-            alert("Failed to update status");
-        }
-    };
-
-    const removeMember = async (member) => {
+        await api.patch(`/organization/members/${member.id}/status/`, { status });
+        setMembers(prev =>
+          prev.map(m =>
+            m.id === member.id
+              ? { ...m, status: status.charAt(0).toUpperCase() + status.slice(1) }
+              : m
+          )
+        );
+      };
+      
+      const removeMember = async (member) => {
         if (!window.confirm("This will remove the user from the organization and ALL groups. Continue?")) return;
-        try {
-            await api.delete(`/organization/members/${member.id}/remove/`);
-            setMembers(prev => prev.filter(m => m.id !== member.id));
-        } catch (err) {
-            alert("Failed to remove member");
-        }
-    };
+        await api.delete(`/organization/members/${member.id}/remove/`);
+        setMembers(prev => prev.filter(m => m.id !== member.id));
+      };
+      
     if (loading) {
         return (
           <div className="h-screen flex items-center justify-center">
@@ -96,7 +92,19 @@ export default function Members() {
           </div>
         );
     }
-    
+    const handleAction = async (member, actionKey, apiCall) => {
+        const key = `${member.id}-${actionKey}`;
+        try {
+          setLoadingButtons(prev => ({ ...prev, [key]: true }));
+          await apiCall(member);
+        } catch (err) {
+          alert("Action failed");
+          console.error(err);
+        } finally {
+          setLoadingButtons(prev => ({ ...prev, [key]: false }));
+        }
+      };
+      
     return (
         <div className="p-4 sm:p-6 space-y-6">
             {/* Header */}
@@ -187,46 +195,78 @@ export default function Members() {
                                 
 
                                 <td className="px-4 py-3">
-                                    <span className={`px-2 py-1 rounded-full text-xs 
-                                        ${m.status === "Active" ? "bg-green-100 text-green-700" :
-                                            m.status === "Pending" ? "bg-yellow-100 text-yellow-700" :
-                                                "bg-red-100 text-red-700"}`}>
-                                        {m.status}
-                                    </span>
-                                </td>
+  <span
+    className={`px-2 py-1 rounded-full text-xs 
+      ${m.status === "Active" ? "bg-green-100 text-green-700" :
+        m.status === "Pending" ? "bg-yellow-100 text-yellow-700" :
+        "bg-red-100 text-red-700"
+      }`}
+  >
+    {m.status}
+  </span>
+</td>
 
-                                <td className="px-4 py-3 flex gap-2 flex-wrap">
-                                    {m.status === "Pending" && (
-                                        <button
-                                            onClick={() => updateStatus(m, "active")}
-                                            className="px-3 py-1 text-xs bg-green-100 text-green-700 rounded-lg"
-                                        >
-                                            Approve
-                                        </button>
-                                    )}
-                                    {m.status === "Active" && (
-                                        <button
-                                            onClick={() => updateStatus(m, "suspended")}
-                                            className="px-3 py-1 text-xs bg-yellow-100 text-yellow-700 rounded-lg"
-                                        >
-                                            Suspend
-                                        </button>
-                                    )}
-                                    {m.status === "Suspended" && (
-                                        <button
-                                            onClick={() => updateStatus(m, "active")}
-                                            className="px-3 py-1 text-xs bg-green-100 text-green-700 rounded-lg"
-                                        >
-                                            Re-Activate
-                                        </button>
-                                    )}
-                                    <button
-                                        onClick={() => removeMember(m)}
-                                        className="px-3 py-1 text-xs bg-red-100 text-red-700 rounded-lg"
-                                    >
-                                        Remove
-                                    </button>
-                                </td>
+<td className="px-4 py-3 flex gap-2 flex-wrap">
+  {m.status === "Pending" && (
+    <button
+      onClick={() => handleAction(m, "approve", member => updateStatus(member, "active"))}
+      disabled={loadingButtons[`${m.id}-approve`]}
+      className="px-3 py-1 text-xs bg-green-100 text-green-700 rounded-lg flex items-center gap-1"
+    >
+      {loadingButtons[`${m.id}-approve`] ? (
+        <svg className="w-4 h-4 animate-spin text-green-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+        </svg>
+      ) : "Approve"}
+    </button>
+  )}
+
+  {m.status === "Active" && (
+    <button
+      onClick={() => handleAction(m, "suspend", member => updateStatus(member, "suspended"))}
+      disabled={loadingButtons[`${m.id}-suspend`]}
+      className="px-3 py-1 text-xs bg-yellow-100 text-yellow-700 rounded-lg flex items-center gap-1"
+    >
+      {loadingButtons[`${m.id}-suspend`] ? (
+        <svg className="w-4 h-4 animate-spin text-yellow-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+        </svg>
+      ) : "Suspend"}
+    </button>
+  )}
+
+  {m.status === "Suspended" && (
+    <button
+      onClick={() => handleAction(m, "reactivate", member => updateStatus(member, "active"))}
+      disabled={loadingButtons[`${m.id}-reactivate`]}
+      className="px-3 py-1 text-xs bg-green-100 text-green-700 rounded-lg flex items-center gap-1"
+    >
+      {loadingButtons[`${m.id}-reactivate`] ? (
+        <svg className="w-4 h-4 animate-spin text-green-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+        </svg>
+      ) : "Re-Activate"}
+    </button>
+  )}
+
+  <button
+    onClick={() => handleAction(m, "remove", member => removeMember(member))}
+    disabled={loadingButtons[`${m.id}-remove`]}
+    className="px-3 py-1 text-xs bg-red-100 text-red-700 rounded-lg flex items-center gap-1"
+  >
+    {loadingButtons[`${m.id}-remove`] ? (
+      <svg className="w-4 h-4 animate-spin text-red-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+      </svg>
+    ) : "Remove"}
+  </button>
+</td>
+
+
                             </tr>
                         ))}
                     </tbody>

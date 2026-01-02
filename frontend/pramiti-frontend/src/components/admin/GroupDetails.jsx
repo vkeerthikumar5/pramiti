@@ -38,6 +38,8 @@ export default function GroupDetails({ group, onBack, onSelectDocument }) {
   const [editData, setEditData] = useState({ name: "", description: "" });
   const [loading,setloading]=useState(false)
   const filteredDocs = useMemo(() => documents, [documents]);
+  const [loadingMembers, setLoadingMembers] = useState({});
+
 
   useEffect(() => {
     if (!group?.id) return;
@@ -135,30 +137,61 @@ export default function GroupDetails({ group, onBack, onSelectDocument }) {
   };
   // Add this function inside your GroupDetails component
 
-  const updateStatus = async (userId, newStatus) => {
-    if (!groupData?.id) return;
-  
-    const statusMap = {
-      Active: "active",
-      Pending: "pending",
-      Suspended: "suspended",
-    };
-  
-    try {
-      await api.patch(
-        `/groups/${groupData.id}/members/${userId}/status/`,
-        { status: statusMap[newStatus] }
-      );
-  
-      // ✅ refetch from DB
-      fetchGroupMembers();
-    } catch (err) {
-      console.error(err);
-      alert("Failed to update member status");
-    }
-  };
-  
+// Track loading per action per member
+const updateStatus = async (userId, newStatus, actionKey) => {
+  if (!groupData?.id) return;
 
+  const statusMap = {
+    Active: "active",
+    Pending: "pending",
+    Suspended: "suspended",
+  };
+
+  try {
+    setLoadingMembers(prev => ({
+      ...prev,
+      [userId]: { ...(prev[userId] || {}), [actionKey]: true }
+    }));
+
+    await api.patch(`/groups/${groupData.id}/members/${userId}/status/`, {
+      status: statusMap[newStatus]
+    });
+
+    fetchGroupMembers();
+  } catch (err) {
+    console.error(err);
+    alert("Failed to update member status");
+  } finally {
+    setLoadingMembers(prev => ({
+      ...prev,
+      [userId]: { ...(prev[userId] || {}), [actionKey]: false }
+    }));
+  }
+};
+
+const removeMember = async (userId) => {
+  if (!confirm("Remove this member?")) return;
+
+  try {
+    setLoadingMembers(prev => ({
+      ...prev,
+      [userId]: { ...(prev[userId] || {}), remove: true }
+    }));
+
+    await api.delete(`/groups/${groupData.id}/members/${userId}/`);
+    setMembers(prev => prev.filter(m => m.id !== userId));
+  } catch (err) {
+    console.error(err);
+    alert("Failed to remove member");
+  } finally {
+    setLoadingMembers(prev => ({
+      ...prev,
+      [userId]: { ...(prev[userId] || {}), remove: false }
+    }));
+  }
+};
+
+  
 
   const editGroup = async (data) => {
     try {
@@ -208,10 +241,27 @@ export default function GroupDetails({ group, onBack, onSelectDocument }) {
 
   const uploadDocument = async (formData) => {
     try {
-      const res = await api.post(`/groups/${group.id}/documents/upload/`, formData, {
+      await api.post(`/groups/${group.id}/documents/upload/`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      setDocuments((prev) => [res.data, ...prev]); // Add new document to list
+      // refetch all documents
+      const res = await api.get(`/groups/${group.id}/documents/`);
+      setDocuments(
+        res.data.map((doc) => ({
+          id: doc.id,
+          title: doc.title,
+          summary: doc.summary,
+          file_url: doc.file_url,
+          uploadedBy: doc.uploaded_by_name || "Unknown",
+          uploadedOn: new Date(doc.uploaded_on).toLocaleDateString(),
+          fileSize: doc.file_size || "",
+          views: doc.views || 0,
+          readers: doc.readers || 0,
+          unansweredQuestions: doc.not_completed_count || 0,
+          completionPercent: doc.completion_percent || 0,
+          completed_count: doc.completed_count ?? 0,
+        }))
+      );
       setUploadOpen(false);
       setUploadTitle("");
       setUploadSummary("");
@@ -222,6 +272,7 @@ export default function GroupDetails({ group, onBack, onSelectDocument }) {
       alert("Failed to upload document");
     }
   };
+  
   const deleteDocument = async (docId) => {
     if (hasDeletedDocRef.current) return; // 🛑 prevent duplicate delete
     if (!confirm("Delete this document permanently?")) return;
@@ -580,53 +631,89 @@ export default function GroupDetails({ group, onBack, onSelectDocument }) {
 
               <td className="px-4 py-3">
                 <div className="flex flex-wrap justify-end gap-2">
+                  {/* Pending */}
                   {m.status === "Pending" && (
                     <>
                       <button
-                        onClick={() => updateStatus(m.id, "Active")}
+                        onClick={() => updateStatus(m.id, "Active", "approve")}
                         className="px-3 py-1 text-xs rounded bg-green-600 text-white hover:bg-green-700 inline-flex items-center gap-1"
+                        disabled={loadingMembers[m.id]?.approve}
                       >
-                        <FiCheck /> Approve
+                        {loadingMembers[m.id]?.approve ? (
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <><FiCheck /> Approve</>
+                        )}
                       </button>
+
                       <button
                         onClick={() => removeMember(m.id)}
                         className="px-3 py-1 text-xs rounded bg-red-600 text-white hover:bg-red-700 inline-flex items-center gap-1"
+                        disabled={loadingMembers[m.id]?.remove}
                       >
-                        <FiX /> Reject
+                        {loadingMembers[m.id]?.remove ? (
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <><FiX /> Reject</>
+                        )}
                       </button>
                     </>
                   )}
 
+                  {/* Active */}
                   {m.status === "Active" && (
                     <>
                       <button
-                        onClick={() => updateStatus(m.id, "Suspended")}
+                        onClick={() => updateStatus(m.id, "Suspended", "suspend")}
                         className="px-3 py-1 text-xs rounded bg-yellow-500 text-white hover:bg-yellow-600 inline-flex items-center gap-1"
+                        disabled={loadingMembers[m.id]?.suspend}
                       >
-                        <FiSlash /> Suspend
+                        {loadingMembers[m.id]?.suspend ? (
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <><FiSlash /> Suspend</>
+                        )}
                       </button>
+
                       <button
                         onClick={() => removeMember(m.id)}
                         className="px-3 py-1 text-xs rounded bg-red-600 text-white hover:bg-red-700 inline-flex items-center gap-1"
+                        disabled={loadingMembers[m.id]?.remove}
                       >
-                        <FiTrash2 /> Remove
+                        {loadingMembers[m.id]?.remove ? (
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <><FiTrash2 /> Remove</>
+                        )}
                       </button>
                     </>
                   )}
 
+                  {/* Suspended */}
                   {m.status === "Suspended" && (
                     <>
                       <button
-                        onClick={() => updateStatus(m.id, "Active")}
+                        onClick={() => updateStatus(m.id, "Active", "reactivate")}
                         className="px-3 py-1 text-xs rounded bg-green-600 text-white hover:bg-green-700 inline-flex items-center gap-1"
+                        disabled={loadingMembers[m.id]?.reactivate}
                       >
-                        <FiCheck /> Re-activate
+                        {loadingMembers[m.id]?.reactivate ? (
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <><FiCheck /> Re-activate</>
+                        )}
                       </button>
+
                       <button
                         onClick={() => removeMember(m.id)}
                         className="px-3 py-1 text-xs rounded bg-red-600 text-white hover:bg-red-700 inline-flex items-center gap-1"
+                        disabled={loadingMembers[m.id]?.remove}
                       >
-                        <FiTrash2 /> Remove
+                        {loadingMembers[m.id]?.remove ? (
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <><FiTrash2 /> Remove</>
+                        )}
                       </button>
                     </>
                   )}
@@ -647,6 +734,8 @@ export default function GroupDetails({ group, onBack, onSelectDocument }) {
     )}
   </div>
 )}
+
+
 
 
         

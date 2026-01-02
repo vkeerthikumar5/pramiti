@@ -56,9 +56,10 @@ export function Login() {
 
   return (
     <section className='w-full flex m-8 justify-end md:mr-32 items-center min-h-screen'>
+      
       <div className="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow-sm sm:p-6 md:p-8">
         <form className="max-w-md mx-auto" onSubmit={handleLogin}>
-          <h5 className="text-xl font-medium text-gray-900 mb-6">Sign in</h5>
+          <h5 className="text-xl font-medium text-gray-900 mb-6"><span className='text-indigo-800'>Pramiti &nbsp;</span>Sign in</h5>
 
           {/* Email */}
           <div className="relative z-0 w-full mb-5 group">
